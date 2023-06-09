@@ -75,12 +75,12 @@ void Parser::ini_parser(const std::string& filename) {
                 // Поиск имени секции.
                 else if (word.front() == '[' && word.back() == ']') {
 
-                    num_section = static_cast<int>(ini_file.tellg()) - static_cast<int>(word.size()) - 2;
+                    //num_section = static_cast<int>(ini_file.tellg()) - static_cast<int>(word.size()) - 2;
                     word.erase(word.begin());
                     word.erase(word.end() - 1);
 
                     // Создание хеш таблицы с индексами секций
-                    hash_map.insert(HashMap::value_type(std::hash<std::string>{}(word), num_section));
+                    hash_map.insert(HashMap::value_type(std::hash<std::string>{}(word), num_line));
 
                     section_name = true;
                 }
@@ -172,7 +172,15 @@ template <typename T> T Parser::get_value(std::string title) {
 
                 // Постановка входящего потока на начало секции.
                 ini_file.clear();
-                ini_file.seekg(num_section);
+                ini_file.seekg(0);
+
+                for (int i = 1; i < num_section; i++) {
+
+                    if (!ini_file.eof()) {
+
+                        std::getline(ini_file, line);
+                    }
+                }
 
                 if (!ini_file.eof()) {
 
@@ -237,7 +245,6 @@ template <typename C> bool Parser::variable_search(std::string line, std::string
 
     std::string word;
     std::string variable_name;
-    //C meaning{};
     int num_index = static_cast<int>(line.find('=') + 1);
 
     std::stringstream ini_line(line);
@@ -286,6 +293,8 @@ template <typename C> bool Parser::variable_search(std::string line, std::string
             }
         }
     }
+
+    return false;
 }
 
 
